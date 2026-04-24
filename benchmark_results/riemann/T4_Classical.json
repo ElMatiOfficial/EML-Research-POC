@@ -1,0 +1,16 @@
+{
+  "task_id": "T4",
+  "track": "Classical",
+  "approach": "Computed the first 500 non-trivial Riemann zeros gamma_k via mpmath.zetazero at 30 decimal digits. Formed unfolded spacings u_ij = (gamma_j - gamma_i) * log(gamma_i/(2*pi))/(2*pi) for all pairs i<j with j-i <= M=20 and u_ij < 3. Built a density-normalized histogram on [0,3] with 15 bins of width 0.2, normalizing bin count by (N * dx) so the histogram approximates the Montgomery pair-correlation density (one-sided: unordered pairs j>i). Compared bin-center values to Montgomery's conjectured F(u) = 1 - (sin(pi u)/(pi u))^2 and recorded max/mean absolute deviations.",
+  "key_results": {
+    "N_zeros": 500,
+    "pair_window_M": 20,
+    "bins": 15,
+    "max_abs_deviation_from_F": 0.15533790946735215,
+    "mean_abs_deviation_from_F": 0.06900778433141194,
+    "F_u_zero_limit": 0.0,
+    "empirical_density_at_u_0_1": 0.0
+  },
+  "verdict": "consistent_with_RH",
+  "eml_observations": ""
+}

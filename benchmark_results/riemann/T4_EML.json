@@ -1,0 +1,16 @@
+{
+  "task_id": "T4",
+  "track": "EML",
+  "approach": "Computed the first 500 non-trivial zeros gamma_k of zeta(s) via mpmath.zetazero at 30-digit precision. Formed the normalized pair distances u_ij = (gamma_j - gamma_i) * log(gamma_i/(2 pi))/(2 pi) for all i<j with j-i <= M=20 and u_ij<3. Density-normalized histogram on [0,3] with 15 bins of width 0.2 (ordered-pair count / (N * dx)) and compared bin-center values to Montgomery's F(u) = 1 - (sin(pi u)/(pi u))^2. EML-side: search_eml_identity('sin(x)', max_size=7) returned zero matches, confirming the conjectured F has no practical brute-force EML decomposition (K>100 for trig), so the numerical check was carried out with mpmath as instructed.",
+  "key_results": {
+    "N_zeros": 500,
+    "pair_window_M": 20,
+    "bins": 15,
+    "max_abs_deviation_from_F": 0.15533790946735215,
+    "mean_abs_deviation_from_F": 0.06900778433141194,
+    "F_u_zero_limit": 0.0,
+    "empirical_density_at_u_0_1": 0.0
+  },
+  "verdict": "consistent_with_RH",
+  "eml_observations": "Ran eml-tool search_eml_identity with target='sin(x)', variables=['x'], max_size=7, max_results=3. Result: matches=[], note='No EML tree up to size 7 matches sin(x)'. This is a signature NEGATIVE EML result: Montgomery's pair-correlation form F(u) = 1 - (sin(pi u)/(pi u))^2 is outside the practical brute-force EML reach (trig has K>100 per Odrzywolek 2026). The EML substrate does not touch this identity at accessible tree sizes; the numerical verification proceeded via mpmath."
+}

@@ -12,6 +12,8 @@ authors = [{ name = "ElMatiOfficial" }]
 dependencies = [
     "anthropic>=0.40.0",
     "sympy>=1.12",
+    "mpmath>=1.3.0",
+    "numpy>=1.24",
     "eml-translator @ git+https://github.com/ElMatiOfficial/EML-Matemathical-Translator-for-AI.git@main",
 ]
 

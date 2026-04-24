@@ -1,0 +1,14 @@
+{
+  "task_id": "T1",
+  "track": "Classical",
+  "approach": "Set mpmath.mp.dps = 30. For n = 1..20, computed the nth non-trivial zero via mpmath.zetazero(n), which returns rho_n = 0.5 + i*gamma_n on the critical line by construction of the algorithm. For each rho_n evaluated |zeta(rho_n)| using mpmath.zeta and took the maximum across n as the residual. A residual on the order of machine/mpmath precision (<< 1e-20) confirms these zeros are numerically consistent with lying exactly on Re(s) = 1/2, i.e. consistent with RH for n<=20.",
+  "key_results": {
+    "gamma_1": 14.134725141734695,
+    "gamma_2": 21.022039638771556,
+    "gamma_20": 77.1448400688748,
+    "max_abs_zeta": 1.2760743662970368e-29,
+    "zeros_checked": 20
+  },
+  "verdict": "consistent_with_RH",
+  "eml_observations": ""
+}

@@ -1,0 +1,24 @@
+{
+  "task_id": "T2",
+  "track": "EML",
+  "approach": "Computed Li's coefficients lambda_n = sum_rho [1 - (1 - 1/rho)^n] for n=1..10 using the first K=200 non-trivial zeros of the Riemann zeta function obtained via mpmath.zetazero at mp.dps=30. For each zero rho we added the contribution from both rho and its complex conjugate (so the implicit 2*Re is exact under the pairing), then took the real part. The EML angle was explored by feeding sub-fragments of the summand through eml-tool math_to_eml: exp(x), log(x), and 1-y each produce valid EML trees, but the composition exp(n*log(1-1/rho)) fails at the multiplication node (Mul is unregistered, K=41 per the tool's documentation), so EML normal form cannot express the full summand today.",
+  "key_results": {
+    "K_zeros_used": 200,
+    "lambdas": {
+      "1": 0.02103486031742673,
+      "2": 0.08410234441738831,
+      "3": 0.18909130542077532,
+      "4": 0.3358169767953985,
+      "5": 0.5240216874492751,
+      "6": 0.7533758582603037,
+      "7": 1.0234792754681374,
+      "8": 1.3338626350851954,
+      "9": 1.6839893512431605,
+      "10": 2.0732576201849873
+    },
+    "all_positive": true,
+    "min_lambda": 0.02103486031742673
+  },
+  "verdict": "consistent_with_RH",
+  "eml_observations": "Feeding fragments of the Li summand into eml-tool math_to_eml: (1) exp(x) yields eml(x, 1) [K=3]; (2) log(x) yields eml(1, eml(eml(1, x), 1)) [K=7]; (3) 1 - y yields a K=11 tree via one_minus/sub; (4) exp(log(1-y)) composes cleanly (K=11, equivalent to 1-y) since there is no intervening scalar multiplication. However exp(n * log(1 - 1/rho)) \u2014 which is the natural EML-structured rewrite of (1-1/rho)^n \u2014 FAILS: math_to_eml returns an error 'No EML identity registered for Mul', because integer scalar multiplication has EML-length ~41 and is not in the registered identity set. So EML does not presently surface any shortcut for Li's summand: the exp/log pieces are trivially in EML form, but the power (n-fold multiplication inside exp) is the barrier. A useful future registration would be a pow(x, n) identity or nat-mult identity \u2014 that would put the entire summand in EML normal form. Numerically, the bottleneck (zetazero) is what dominates cost, so EML normal form offers no computational speedup here; its value would be symbolic/structural."
+}

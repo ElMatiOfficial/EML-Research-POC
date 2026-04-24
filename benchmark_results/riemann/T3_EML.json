@@ -1,0 +1,17 @@
+{
+  "task_id": "T3",
+  "track": "EML",
+  "approach": "Iterated n from 5041 to 10000, computed sigma(n) via sympy.divisor_sigma(n,1), and evaluated the Robin ratio r_n = sigma(n) / (n * log(log(n))). Tracked the maximum ratio and its argmax, then compared to e^gamma. To obtain the threshold e^gamma via the EML framework, used eml-tool math_to_eml on exp(x) which yields the minimal K=3 tree eml(x, 1), then evaluate_eml on eml(x, 1) with x = gamma (0.5772156649015329) to recover 1.7810724179901979 \u2014 matching the standard value. Verdict reflects whether max(r_n) < e^gamma on this range.",
+  "key_results": {
+    "n_range": [
+      5041,
+      10000
+    ],
+    "max_ratio": 1.7399165192027595,
+    "argmax_n": 7560,
+    "e_gamma": 1.781072417990198,
+    "margin": 0.04115589878743853
+  },
+  "verdict": "consistent_with_RH",
+  "eml_observations": "math_to_eml(exp(x)) returns the minimal K=3 tree eml(x, 1) (RPN: \"x 1 eml\"), confirming exp is the primitive EML identity with ln(1)=0 absorbed into the second slot. Evaluating eml(x, 1) at x = Euler-Mascheroni gamma = 0.5772156649015329 gives 1.781072417990198, reproducing e^gamma to 15 digits. Honest assessment: EML adds no computational advantage here \u2014 gamma itself is transcendental with no finite EML tree, so the number must still be supplied externally; the eml(x,1) wrapper is structurally identical to a direct exp() call. EML is useful as a normal-form lens: the Robin inequality r_n < e^gamma is equivalent to ln(r_n) < gamma, i.e. eml(0, r_n) < gamma (since eml(0, y) = 1 - ln(y)), but this rewrite does not simplify the arithmetic check."
+}

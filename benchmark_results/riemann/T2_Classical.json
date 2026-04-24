@@ -1,0 +1,24 @@
+{
+  "task_id": "T2",
+  "track": "Classical",
+  "approach": "Computed Li's coefficients lambda_n = sum_rho [1 - (1 - 1/rho)^n] for n=1..10 using the first K=200 non-trivial zeros of the Riemann zeta function obtained via mpmath.zetazero(k) at 30 decimal digits of precision. Each zero rho was paired with its complex conjugate conj(rho) in the sum to account for the symmetric zero pairs in the critical strip. For each n, both terms (1 - (1 - 1/rho)^n) and (1 - (1 - 1/conj(rho))^n) were accumulated as mpc complex numbers, and the real part of the final sum was returned. Li (1997) proved RH is equivalent to lambda_n >= 0 for all n >= 1; positivity of the partial-sum lambda_n over a finite set of zeros is a necessary but not sufficient numerical consistency check with RH.",
+  "key_results": {
+    "K_zeros_used": 200,
+    "lambdas": {
+      "1": 0.02103486031742673,
+      "2": 0.08410234441738831,
+      "3": 0.18909130542077532,
+      "4": 0.3358169767953985,
+      "5": 0.5240216874492751,
+      "6": 0.7533758582603037,
+      "7": 1.0234792754681374,
+      "8": 1.3338626350851954,
+      "9": 1.6839893512431605,
+      "10": 2.0732576201849873
+    },
+    "all_positive": true,
+    "min_lambda": 0.02103486031742673
+  },
+  "verdict": "consistent_with_RH",
+  "eml_observations": ""
+}

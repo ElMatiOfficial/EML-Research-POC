@@ -1,0 +1,117 @@
+{
+  "task_id": "T1",
+  "track": "EML",
+  "approach": "Computed the first 20 non-trivial zeros of the Riemann zeta function via mpmath.zetazero(n) at 30-digit precision, obtaining rho_n = 1/2 + i*gamma_n. For each rho_n, evaluated |zeta(rho_n)| using mpmath.zeta and took the maximum over n = 1..20. A value within numerical noise of zero confirms that each computed zero satisfies Re(s) = 1/2 (consistent with the Riemann Hypothesis for the first 20 zeros; this is a numerical check, not a proof).",
+  "key_results": {
+    "gamma_1": 14.134725141734695,
+    "gamma_2": 21.022039638771556,
+    "gamma_20": 77.1448400688748,
+    "max_abs_zeta": 1.2760743662970368e-29,
+    "zeros_checked": 20
+  },
+  "verdict": "consistent_with_RH",
+  "eml_observations": "log|zeta(s)| = -Re sum_p log(1 - p^{-s}) is not directly expressible in the current EML registry. math_to_eml fails on log(1 - p**(-s)) because general power p**(-s) has no registered identity (only E**x is built in), and it fails on log(zeta(s)) because zeta is not registered. However, the per-term primitive log(1 - y) IS EML-expressible (K=17), and exp(x) - log(y) is literally eml(x, y) by definition. Structural observation: each Euler-product term log(1 - p^{-s}) = log(1 - exp(-s * log(p))) needs only one multiplication (-s * log(p)) to fall inside EML; multiplication itself has K >= 41 in EML, so the Euler product expressed purely in EML is dominated by the multiplication of complex s by real log(p). EML therefore offers no computational shortcut for verifying zeros numerically, and the numerical check was done with mpmath. Reporting honestly: EML is not the right tool for this task.",
+  "_per_zero": [
+    {
+      "n": 1,
+      "gamma_n": 14.134725141734695,
+      "abs_zeta": 6.207071946501536e-31
+    },
+    {
+      "n": 2,
+      "gamma_n": 21.022039638771556,
+      "abs_zeta": 4.331483172259611e-31
+    },
+    {
+      "n": 3,
+      "gamma_n": 25.01085758014569,
+      "abs_zeta": 1.5567111264559666e-30
+    },
+    {
+      "n": 4,
+      "gamma_n": 30.424876125859512,
+      "abs_zeta": 1.3679479753274117e-30
+    },
+    {
+      "n": 5,
+      "gamma_n": 32.93506158773919,
+      "abs_zeta": 1.9570941292763096e-30
+    },
+    {
+      "n": 6,
+      "gamma_n": 37.586178158825675,
+      "abs_zeta": 3.1218695384085027e-30
+    },
+    {
+      "n": 7,
+      "gamma_n": 40.9187190121475,
+      "abs_zeta": 1.4297460968890813e-30
+    },
+    {
+      "n": 8,
+      "gamma_n": 43.327073280915,
+      "abs_zeta": 5.1353541983028e-30
+    },
+    {
+      "n": 9,
+      "gamma_n": 48.00515088116716,
+      "abs_zeta": 3.323714298052725e-30
+    },
+    {
+      "n": 10,
+      "gamma_n": 49.7738324776723,
+      "abs_zeta": 2.3985379135636416e-30
+    },
+    {
+      "n": 11,
+      "gamma_n": 52.970321477714464,
+      "abs_zeta": 5.482449326768062e-31
+    },
+    {
+      "n": 12,
+      "gamma_n": 56.44624769706339,
+      "abs_zeta": 6.311937280218496e-30
+    },
+    {
+      "n": 13,
+      "gamma_n": 59.34704400260235,
+      "abs_zeta": 2.1358947525009236e-30
+    },
+    {
+      "n": 14,
+      "gamma_n": 60.83177852460981,
+      "abs_zeta": 1.4334662223425682e-30
+    },
+    {
+      "n": 15,
+      "gamma_n": 65.1125440480816,
+      "abs_zeta": 3.3855970524420125e-30
+    },
+    {
+      "n": 16,
+      "gamma_n": 67.07981052949417,
+      "abs_zeta": 8.883744331503109e-30
+    },
+    {
+      "n": 17,
+      "gamma_n": 69.54640171117398,
+      "abs_zeta": 1.2760743662970368e-29
+    },
+    {
+      "n": 18,
+      "gamma_n": 72.0671576744819,
+      "abs_zeta": 9.505308893881802e-30
+    },
+    {
+      "n": 19,
+      "gamma_n": 75.70469069908393,
+      "abs_zeta": 1.7498863434609782e-30
+    },
+    {
+      "n": 20,
+      "gamma_n": 77.1448400688748,
+      "abs_zeta": 7.55452244061398e-30
+    }
+  ],
+  "_max_at_n": 17
+}
