@@ -204,17 +204,17 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
                     "description": "Variable of integration/differentiation/etc. Not used by simplify/evalf/factor/expand.",
                 },
                 "point": {
-                    "type": "number",
-                    "description": "Point for 'limit' / expansion point for 'series'.",
+                    "type": ["number", "string"],
+                    "description": "Point for 'limit' / expansion point for 'series'. Strings are sympified so you can pass 'oo', '-oo', 'pi', 'pi/2', 'E', etc.",
                 },
                 "bounds": {
                     "type": "array",
-                    "items": {"type": "number"},
-                    "description": "[lower, upper] for definite 'integrate'. Omit for indefinite.",
+                    "items": {"type": ["number", "string"]},
+                    "description": "[lower, upper] for definite 'integrate'. Each bound may be a number or a sympy-parseable string (e.g. 'oo', '-oo', 'pi/2'). Omit for indefinite.",
                 },
                 "order": {
                     "type": "integer",
-                    "description": "Truncation order for 'series'. Default 6.",
+                    "description": "Derivative order for 'diff' (default 1); truncation order for 'series' (default 6).",
                 },
                 "precision": {
                     "type": "integer",
@@ -438,11 +438,26 @@ _SYMPY_LOCALS: dict[str, Any] = {
     "tanh": sympy.tanh,
     "sqrt": sympy.sqrt,
     "Abs": sympy.Abs,
+    "factorial": sympy.factorial,
+    "gamma": sympy.gamma,
+    "zeta": sympy.zeta,
+    "erf": sympy.erf,
 }
 
 
 def _parse_math(src: str) -> sympy.Expr:
     return sympy.sympify(src, locals=_SYMPY_LOCALS)
+
+
+def _parse_bound(value: Any) -> sympy.Expr:
+    """Coerce an integrate bound or limit point to a sympy expression.
+
+    Accepts a plain number (JSON doesn't carry infinity) or a sympy-parseable
+    string like 'oo', '-oo', 'pi/2', 'E'.
+    """
+    if isinstance(value, (int, float)):
+        return sympy.Float(value) if isinstance(value, float) else sympy.Integer(value)
+    return sympy.sympify(str(value), locals=_SYMPY_LOCALS)
 
 
 def _tool_sympy_compute(args: dict[str, Any]) -> str:
@@ -473,25 +488,29 @@ def _tool_sympy_compute(args: dict[str, Any]) -> str:
         elif op == "diff":
             if symbol is None:
                 return _err("'diff' requires 'variable'.")
-            result = sympy.diff(expr, symbol)
+            order = int(args.get("order", 1))
+            result = sympy.diff(expr, symbol, order)
         elif op == "integrate":
             if symbol is None:
                 return _err("'integrate' requires 'variable'.")
             bounds = args.get("bounds")
             if bounds:
-                lower, upper = bounds
+                if len(bounds) != 2:
+                    return _err("'bounds' must be [lower, upper].")
+                lower = _parse_bound(bounds[0])
+                upper = _parse_bound(bounds[1])
                 result = sympy.integrate(expr, (symbol, lower, upper))
             else:
                 result = sympy.integrate(expr, symbol)
         elif op == "limit":
             if symbol is None:
                 return _err("'limit' requires 'variable'.")
-            point = args.get("point", 0)
+            point = _parse_bound(args.get("point", 0))
             result = sympy.limit(expr, symbol, point)
         elif op == "series":
             if symbol is None:
                 return _err("'series' requires 'variable'.")
-            point = args.get("point", 0)
+            point = _parse_bound(args.get("point", 0))
             order = int(args.get("order", 6))
             result = sympy.series(expr, symbol, point, order).removeO()
         else:

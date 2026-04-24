@@ -123,3 +123,56 @@ def test_unknown_tool_returns_error():
     raw = run_tool("does_not_exist", {})
     payload = json.loads(raw)
     assert payload["status"] == "error"
+
+
+# -- Extended sympy_compute: string bounds / point / diff order -----------
+
+def test_sympy_compute_integrate_infinite_bounds():
+    out = _call(
+        "sympy_compute",
+        op="integrate",
+        expression="exp(-x**2)",
+        variable="x",
+        bounds=["-oo", "oo"],
+    )
+    assert out["status"] == "ok"
+    assert out["result"] == "sqrt(pi)"
+
+
+def test_sympy_compute_integrate_symbolic_upper_bound():
+    # integral_0^{pi/2} cos(x) dx = 1
+    out = _call(
+        "sympy_compute",
+        op="integrate",
+        expression="cos(x)",
+        variable="x",
+        bounds=[0, "pi/2"],
+    )
+    assert out["status"] == "ok"
+    assert out["result"] == "1"
+
+
+def test_sympy_compute_limit_at_infinity_string():
+    out = _call(
+        "sympy_compute",
+        op="limit",
+        expression="1/x",
+        variable="x",
+        point="oo",
+    )
+    assert out["status"] == "ok"
+    assert out["result"] == "0"
+
+
+def test_sympy_compute_diff_higher_order():
+    # d^2/dx^2 [x**3] = 6*x
+    out = _call("sympy_compute", op="diff", expression="x**3", variable="x", order=2)
+    assert out["status"] == "ok"
+    assert out["result"] == "6*x"
+
+
+def test_sympy_compute_factorial_available():
+    # sympify should accept factorial now
+    out = _call("sympy_compute", op="simplify", expression="factorial(5)")
+    assert out["status"] == "ok"
+    assert out["result"] == "120"

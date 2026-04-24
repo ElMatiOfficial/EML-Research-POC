@@ -1,6 +1,6 @@
 # EML Research POC
 
-> **Latest run (2026-04-23): 16/16 (100%)** using Claude Code subagents through the `eml-tool` CLI wrapper. Full breakdown in [RESULTS.md](RESULTS.md).
+> **Benchmark runs (2026-04-23): 21/21 (100%)** — 16/16 on the easy–medium track plus 5/5 on a graduate-level hard track (Gaussian / Dirichlet / 1/(x⁴+1) integrals, Stirling's constant, ((1+x)^(1/x)−e)/x limit). All runs via Claude Code subagents through the `eml-tool` CLI. Full breakdown in [RESULTS.md](RESULTS.md).
 
 Research proof-of-concept: can an AI agent solve mathematical problems more faithfully if it reasons through the **EML (Exp-Minus-Log) primitive** from Odrzywołek (2026, [arXiv:2603.21852](https://arxiv.org/abs/2603.21852))?
 

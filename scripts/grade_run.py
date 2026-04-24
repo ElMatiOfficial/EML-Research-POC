@@ -87,13 +87,18 @@ def _print_report(report: dict[str, Any]) -> None:
 
 
 def main() -> int:
-    if len(sys.argv) != 2:
+    if len(sys.argv) not in (2, 3):
         print(__doc__)
         return 2
-    answers = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+    answers_path = Path(sys.argv[1])
+    answers = json.loads(answers_path.read_text(encoding="utf-8"))
     report = run(answers)
     _print_report(report)
-    out_path = Path("benchmark_results") / "claude_code_run.json"
+    # Default output path mirrors the input stem so multiple runs don't clobber each other.
+    default_name = f"{answers_path.stem.replace('_answers', '')}_run.json"
+    out_path = (
+        Path(sys.argv[2]) if len(sys.argv) == 3 else Path("benchmark_results") / default_name
+    )
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(f"\nReport written to {out_path}")

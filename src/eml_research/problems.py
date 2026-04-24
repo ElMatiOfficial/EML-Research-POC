@@ -189,6 +189,69 @@ PROBLEMS: list[Problem] = [
         check="exact",
         tags=["simplify", "eml-relevant"],
     ),
+    # --- Hard track (graduate-level classical problems) ----------------------
+    Problem(
+        pid="hard-01",
+        category="hard",
+        question=(
+            "Evaluate the Gaussian integral in closed form: "
+            "integral from -infinity to +infinity of exp(-x**2) dx. "
+            "Return the exact value."
+        ),
+        truth="sqrt(pi)",
+        check="exact",
+        tags=["gaussian-integral", "improper-integral", "eml-relevant"],
+    ),
+    Problem(
+        pid="hard-02",
+        category="hard",
+        question=(
+            "Evaluate the Dirichlet integral in closed form: "
+            "integral from 0 to +infinity of sin(x)/x dx. "
+            "Return the exact value."
+        ),
+        truth="pi/2",
+        check="exact",
+        tags=["dirichlet-integral", "improper-integral"],
+    ),
+    Problem(
+        pid="hard-03",
+        category="hard",
+        question=(
+            "Evaluate the integral from 0 to +infinity of 1/(x**4 + 1) dx in closed form. "
+            "Return the exact value."
+        ),
+        # sqrt(2)*pi/4 == pi/(2*sqrt(2))
+        truth="sqrt(2)*pi/4",
+        check="exact",
+        tags=["rational-improper-integral", "residue-calculus"],
+    ),
+    Problem(
+        pid="hard-04",
+        category="hard",
+        question=(
+            "Compute the Stirling-constant limit in closed form: "
+            "lim_{n -> infinity} n! / (n**n * exp(-n) * sqrt(n)). "
+            "Return the exact value."
+        ),
+        # sympy returns sqrt(2)*sqrt(pi) which is equivalent to sqrt(2*pi)
+        truth="sqrt(2*pi)",
+        check="exact",
+        tags=["factorial-limit", "stirling", "eml-relevant"],
+    ),
+    Problem(
+        pid="hard-05",
+        category="hard",
+        question=(
+            "Compute the limit in closed form: "
+            "lim_{x -> 0} ((1 + x)**(1/x) - E) / x. "
+            "Return the exact value."
+        ),
+        # Classical hard limit: -E/2
+        truth="-E/2",
+        check="exact",
+        tags=["nested-limit", "eml-relevant"],
+    ),
 ]
 
 

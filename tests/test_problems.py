@@ -92,3 +92,62 @@ def test_alg_01_roots_are_pm_one():
 def test_problem_ids_are_unique():
     pids = [p.pid for p in PROBLEMS]
     assert len(pids) == len(set(pids))
+
+
+# -- Hard-track ground-truth validation -----------------------------------
+
+def test_hard_01_gaussian_integral():
+    """integral_{-oo}^{oo} exp(-x^2) dx = sqrt(pi)"""
+    import sympy as sp
+
+    x = sp.Symbol("x")
+    got = sp.integrate(sp.exp(-x**2), (x, -sp.oo, sp.oo))
+    p = by_pid("hard-01")
+    truth = sp.sympify(p.truth, locals={"pi": sp.pi, "sqrt": sp.sqrt})
+    assert sp.simplify(got - truth) == 0
+
+
+def test_hard_02_dirichlet_integral():
+    """integral_0^{oo} sin(x)/x dx = pi/2"""
+    import sympy as sp
+
+    x = sp.Symbol("x", positive=True)
+    got = sp.integrate(sp.sin(x) / x, (x, 0, sp.oo))
+    p = by_pid("hard-02")
+    truth = sp.sympify(p.truth, locals={"pi": sp.pi})
+    assert sp.simplify(got - truth) == 0
+
+
+def test_hard_03_quartic_reciprocal():
+    """integral_0^{oo} 1/(x**4 + 1) dx = sqrt(2)*pi/4"""
+    import sympy as sp
+
+    x = sp.Symbol("x", positive=True)
+    got = sp.integrate(1 / (x**4 + 1), (x, 0, sp.oo))
+    p = by_pid("hard-03")
+    truth = sp.sympify(p.truth, locals={"pi": sp.pi, "sqrt": sp.sqrt})
+    assert sp.simplify(got - truth) == 0
+
+
+def test_hard_04_stirling_limit():
+    """lim n!/(n^n * e^{-n} * sqrt(n)) = sqrt(2*pi)"""
+    import sympy as sp
+
+    n = sp.Symbol("n", positive=True)
+    got = sp.limit(
+        sp.factorial(n) / (n**n * sp.exp(-n) * sp.sqrt(n)), n, sp.oo
+    )
+    p = by_pid("hard-04")
+    truth = sp.sympify(p.truth, locals={"pi": sp.pi, "sqrt": sp.sqrt})
+    assert sp.simplify(got - truth) == 0
+
+
+def test_hard_05_nested_limit():
+    """lim ((1+x)^{1/x} - E)/x as x->0 is -E/2"""
+    import sympy as sp
+
+    x = sp.Symbol("x")
+    got = sp.limit(((1 + x) ** (1 / x) - sp.E) / x, x, 0)
+    p = by_pid("hard-05")
+    truth = sp.sympify(p.truth, locals={"E": sp.E})
+    assert sp.simplify(got - truth) == 0

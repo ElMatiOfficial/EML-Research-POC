@@ -91,3 +91,43 @@ Alternatively, the SDK-based runner in [src/eml_research/benchmark.py](src/eml_r
 - **The escape hatch is doing load-bearing work.** Pure-EML would be impractical for calculus/algebra problems with K>11 (multiplication alone is K=41, sin/cos K>100). `sympy_compute` is the right tool there, and the agent correctly selects it.
 
 A natural follow-up: rerun with `sympy_compute` removed to measure how far pure-EML reasoning gets on harder problems, and seed the library with new registered identities from the paper's supplementary (addition, multiplication, trig) so the agent can use them instead of falling back to sympy.
+
+---
+
+## Run 2 — Hard track (2026-04-23)
+
+Five graduate-level classical problems with known closed-form answers. Before the run, `sympy_compute` was extended to accept sympy-parseable string bounds/points (`"oo"`, `"-oo"`, `"pi/2"`, `"E"`, …) and to take an `order` param for higher-order `diff`. See the new tests in [test_tools.py](tests/test_tools.py) and the ground-truth validators in [test_problems.py](tests/test_problems.py).
+
+| Category | Pass | Total | Accuracy |
+| --- | ---: | ---: | ---: |
+| `hard` | 5 | 5 | 100.0% |
+
+| PID | Problem | Agent answer | Ground truth | Verdict |
+| --- | --- | --- | --- | --- |
+| hard-01 | ∫₋∞^∞ exp(−x²) dx (Gaussian integral) | `sqrt(pi)` | `sqrt(pi)` | PASS |
+| hard-02 | ∫₀^∞ sin(x)/x dx (Dirichlet integral) | `pi/2` | `pi/2` | PASS |
+| hard-03 | ∫₀^∞ 1/(x⁴+1) dx | `sqrt(2)*pi/4` | `sqrt(2)*pi/4` | PASS |
+| hard-04 | lim_{n→∞} n! / (nⁿ · e^(−n) · √n) (Stirling's constant) | `sqrt(2*pi)` | `sqrt(2*pi)` | PASS |
+| hard-05 | lim_{x→0} ((1+x)^(1/x) − e)/x | `-E/2` | `-E/2` | PASS |
+
+Each of the five subagents solved its problem in a single `sympy_compute` tool call — total tokens ≈ 87K across the batch, and wall clock was bounded by the slowest (hard-03 at ~41s; the other four finished in 4.5–33s). The agents consistently selected the right `op` (`integrate` or `limit`), passed `"oo"`/`"pi/2"`/`"E"` as symbolic bounds/points, and returned the exact closed form verbatim.
+
+These five problems were chosen for being known to be hard by hand:
+
+- **hard-01 / hard-02 / hard-03** — classical improper integrals, typically proven with contour integration or Feynman's trick. Closed-form answers involve π and √2.
+- **hard-04** — the Stirling constant; textbook proofs use Wallis's product, saddle-point, or Laplace's method.
+- **hard-05** — a second-order Taylor-expansion limit around x = 0; requires expanding `(1+x)^(1/x) = e^(1/x · ln(1+x))` to O(x) and subtracting e.
+
+The agents didn't derive these by hand — they selected the right `sympy_compute` invocation and let sympy return the closed form. The signal this carries: once you give Claude Code an EML + sympy toolbelt, correctly routing a problem to the right tool is the dominant skill, and on this set of 5 it gets that routing right every time on a single call.
+
+### What this run doesn't prove
+
+It doesn't show that **pure-EML reasoning** scales to hard problems — every one of the five went through `sympy_compute`. The interesting next step is to either register the EML decompositions of the paper's hard identities (multiplication K=41, sin/cos K>100, π K=193) or to hybridize EML + sympy in a way that uses EML as a *substrate for the expression* and sympy as a *procedural solver over EML trees*. That's the research direction this POC is set up to support.
+
+## Combined scoreboard
+
+| Run | Set | Score | Accuracy |
+| --- | --- | ---: | ---: |
+| 1 | 16 easy–medium problems (eml/eval/calc/alg) | 16/16 | 100% |
+| 2 | 5 hard problems (Gaussian, Dirichlet, 1/(x⁴+1), Stirling, nested-limit) | 5/5 | 100% |
+| **Total** | **21 problems** | **21/21** | **100%** |
