@@ -1,8 +1,10 @@
 # EML Research POC
 
-> **Benchmark runs (2026-04-23):**
-> - **General math benchmark:** 21/21 (100%) across easy–medium + graduate-level hard tracks. See [RESULTS.md](RESULTS.md).
-> - **Riemann Hypothesis sub-investigation (4 criteria × 2 tracks = 8 subagents):** 8/8 artifacts consistent with RH. Clean A/B split between EML-framing and classical (mpmath/sympy) — see [RIEMANN_REPORT.md](RIEMANN_REPORT.md) and [src/eml_research/riemann/README.md](src/eml_research/riemann/README.md).
+> **Run summary (latest: 2026-04-24):**
+> - **General math benchmark:** 21/21 (100%) across easy–medium + graduate-level hard tracks. Details: [RESULTS.md](RESULTS.md).
+> - **Riemann Hypothesis sub-investigation (4 criteria × 2 tracks = 8 subagents):** 8/8 artifacts consistent with RH, head-to-head EML vs Classical A/B. Details: [RIEMANN_REPORT.md](RIEMANN_REPORT.md).
+> - **Tests:** 44/44 offline unit tests passing.
+> - **Project bio, motivation, and credits:** [BIO.md](BIO.md).
 
 Research proof-of-concept: can an AI agent solve mathematical problems more faithfully if it reasons through the **EML (Exp-Minus-Log) primitive** from Odrzywołek (2026, [arXiv:2603.21852](https://arxiv.org/abs/2603.21852))?
 
@@ -14,83 +16,64 @@ and shows every elementary function can be expressed as a tree over the single l
 
 Built on top of the upstream library [ElMatiOfficial/EML-Matemathical-Translator-for-AI](https://github.com/ElMatiOfficial/EML-Matemathical-Translator-for-AI).
 
-## What this POC contains
+## Repository layout
 
-| Module | Purpose |
+| Path | Purpose |
 | --- | --- |
 | [`src/eml_research/tools.py`](src/eml_research/tools.py) | Seven EML-flavored tools exposed to the agent via Claude's tool-use API: `math_to_eml`, `eml_to_math`, `evaluate_eml`, `list_eml_identities`, `search_eml_identity`, `verify_eml`, `sympy_compute` |
-| [`src/eml_research/agent.py`](src/eml_research/agent.py) | `MathAgent` — manual tool-use loop against Claude Opus 4.7 with prompt caching on the system prompt + tools |
-| [`src/eml_research/problems.py`](src/eml_research/problems.py) | 16 benchmark problems with verified ground truths (EML translation, numeric evaluation, calculus, algebra) |
+| [`src/eml_research/cli.py`](src/eml_research/cli.py) | `eml-tool` CLI wrapper — subagents call tools via bash |
+| [`src/eml_research/agent.py`](src/eml_research/agent.py) | `MathAgent` — manual tool-use loop against Claude Opus 4.7 with prompt caching |
+| [`src/eml_research/problems.py`](src/eml_research/problems.py) | 21 benchmark problems across `eml`, `eval`, `calc`, `alg`, and `hard` categories with verified ground truths |
 | [`src/eml_research/grading.py`](src/eml_research/grading.py) | Structured grader with 5 check strategies: `numeric`, `exact`, `set`, `eml_tree`, `string` |
-| [`src/eml_research/benchmark.py`](src/eml_research/benchmark.py) | Runner that executes every problem, grades the agent's output, and emits a JSON report |
-| [`tests/`](tests/) | 34 unit tests covering tools, grader, and ground-truth integrity (runs without the API) |
+| [`src/eml_research/benchmark.py`](src/eml_research/benchmark.py) | SDK-based runner (alternative to Claude Code subagents) |
+| [`src/eml_research/riemann/`](src/eml_research/riemann/) | Riemann-Hypothesis multi-agent investigation — 4 RH-equivalent criteria, EML-vs-Classical A/B |
+| [`examples/`](examples/) | Six self-contained, runnable demonstrations — start here |
+| [`scripts/`](scripts/) | Grader + compiler scripts for subagent-produced artifacts |
+| [`tests/`](tests/) | 44 offline unit tests (tool wiring, grader, every ground truth) |
+| [`benchmark_results/riemann/`](benchmark_results/riemann/) | Archived subagent artifacts from Run 3 (RH investigation) |
+| [`riemann.pdf`](riemann.pdf) | Bombieri's Clay Institute paper (the source for Run 3) |
 
 The `sympy_compute` tool is a deliberate escape hatch: the paper notes that multiplication's EML tree has K=41 and π's has K=193, which are beyond brute-force search, so the agent is told to fall back to symbolic math for those and to *note in its reasoning* why EML alone is impractical there.
 
-## Setup
+## Quickstart
 
 ```bash
-# Python 3.10+
+# Install (Python 3.10+)
 pip install -e .
+
+# Walk through the seven EML tools in one pass
+python examples/01_eml_basics.py
+
+# Solve five hard graduate-level problems via sympy_compute
+python examples/02_hard_problems_via_sympy.py
+
+# Independently reproduce the Riemann T1 numerical check (no API key)
+python examples/03_riemann_zeros_on_critical_line.py
+
+# Run the tests (44, offline)
+pytest
 ```
 
-This installs the EML translator directly from its GitHub repository as a dependency, plus `anthropic` and `sympy`.
+Full index of examples: [`examples/README.md`](examples/README.md).
 
-## Run the benchmark
+## Running the benchmarks
 
-Set your API key and run:
+Two routes exist; both have been used in this repo.
+
+**Route A — Claude Code subagents (what Runs 1–3 used).** From a Claude Code session in this repo, spawn `general-purpose` subagents with one problem each via the `Agent` tool. Each subagent calls `eml-tool <name> '<json>'` via bash and returns a `FINAL ANSWER:` line. The grader at [`scripts/grade_run.py`](scripts/grade_run.py) compares each answer to the ground truth. No separate API billing — this uses your Claude Code subscription quota.
+
+**Route B — Anthropic SDK runner.** With an `ANTHROPIC_API_KEY` set, `eml-benchmark` runs the same 21 problems through the `MathAgent` class (Opus 4.7 with prompt caching on the tool+system prefix). This is billed per-token to the API account attached to the key.
 
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
-eml-benchmark                                    # runs all 16 problems
-eml-benchmark --pid eml-01 --pid eval-01         # run specific ones
-eml-benchmark --model claude-sonnet-4-6          # override the model
+eml-benchmark                             # run all problems
+eml-benchmark --pid hard-01 --pid hard-02 # run specific ones
+eml-benchmark --model claude-sonnet-4-6   # override the model
 ```
 
-Each problem runs through the agent; the agent's `FINAL ANSWER:` line is compared to the ground truth. Results are written to `benchmark_results/benchmark_<timestamp>.json` with full tool-call traces.
+## What the runs revealed
 
-Example expected console output:
-
-```
-[1/16] eml-01 (eml) ...
-    -> PASS  final="eml(x, 1)"  truth='eml(x, 1)'  [EML tree matches target on sample grid]  tools=[math_to_eml=1, verify_eml=1]  2.3s
-[2/16] eml-02 (eml) ...
-    ...
-================================================================
-Overall: 14/16 (87.5%) in 182s on claude-opus-4-7
-----------------------------------------------------------------
-  algebra     : 3/3  (100.0%)
-  calculus    : 4/5  (80.0%)
-  eml         : 5/5  (100.0%)
-  evaluation  : 2/3  (66.7%)
-================================================================
-```
-
-## Run the tests (no API key needed)
-
-```bash
-PYTHONPATH=src pytest
-```
-
-All 34 tests run offline — they verify the tool wiring, the grader, and that every benchmark ground truth is actually correct.
-
-## Benchmark problem categories
-
-| Category | Problems | What it tests |
-| --- | --- | --- |
-| `eml` | 5 | Translation to EML, tree size, Kolmogorov length — the core EML path |
-| `evaluation` | 3 | Numeric evaluation via `evaluate_eml` |
-| `calculus` | 5 | Derivatives, integrals, limits — expected to use `sympy_compute` |
-| `algebra` | 3 | Polynomial roots and simplification |
-
-Ground truths include `exp(2) = 7.389...`, `lim (1 + 1/x)^x = e`, `integrate exp(x) from 0 to 1 = e - 1`, and the paper's canonical EML identities like `exp(x) = eml(x, 1)` (K=3) and `ln(x) = eml(1, eml(eml(1, x), 1))` (K=7).
-
-## Research questions this harness can answer
-
-- Does the agent produce correct EML decompositions for problems where the paper-identified trees exist?
-- When a problem would require EML trees with K > 11, does the agent correctly fall back to sympy and flag the limitation?
-- Does prompt caching the EML system prompt + tools keep per-problem cost low? (`usage.cache_read_input_tokens` in each run trace answers this.)
-- On which problem categories does grounding-in-EML help vs hurt accuracy? (Compare by category in the report.)
+Short version: the agents reach 100% on every task we've tried, but for calculus / algebra / RH-analytic work they go through `sympy_compute` and largely *ignore* the EML tools. EML pays its rent on the eml-translate / evaluate / verify problems where the paper's K ≤ 11 identities live. The honest A/B analysis is in [BIO.md](BIO.md) and [RIEMANN_REPORT.md](RIEMANN_REPORT.md).
 
 ## Citing
 
